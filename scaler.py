@@ -46,10 +46,10 @@ class Scaler(TransformerMixin):
             self.scaler = MinMaxScaler()
             self.scaler.fit(X)
             self.min_ = pd.Series(self.scaler.min_, index = X.columns)
-            self.max_ = pd.Series(self.scaler.min_, index = X.columns)
+            self.max_ = pd.Series(self.scaler.min_, index = X.columns)            
         else:
             "add more different scaler methods"
-            pass
+            print("add more different scaler methods")
         self.scale_ = pd.Series(self.scaler.scale_, index=X.columns)
         return self
 

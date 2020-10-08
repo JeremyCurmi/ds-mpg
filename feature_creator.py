@@ -28,10 +28,12 @@ class FeatureCreator(BaseEstimator,TransformerMixin):
         logging.info(f"{self.name} Finished Processing, total time taken: --- {round((time.time() - self.start_time),6)} seconds ---")
         return X_feat
 
-
     
     def feature_create_power(self, X):
         X_feat_create = X.copy()
         if self.power:
             X_feat_create["power"] = X_feat_create["horsepower"]/X_feat_create["weight"]
         return X_feat_create
+    
+    def get_feature_names(self):
+        return self.columns

@@ -23,7 +23,7 @@ class FeatureTypeSelector(BaseEstimator, TransformerMixin):
         if self.feature_type == "numeric":
             num_features = X.columns[X.dtypes != object].tolist()
             return X[num_features]
-        elif self.dtype == "categorical":
+        elif self.feature_type == "categorical":
             cat_features = X.columns[X.dtypes == object].tolist()
             return X[cat_features]
         logging.info(f"{self.name} Finished Processing, total time taken: --- {round((time.time() - self.start_time),6)} seconds ---")
@@ -62,6 +62,6 @@ class FeatureSelector(BaseEstimator,TransformerMixin):
         if self.feature_type == "numeric":
             num_features = X.columns[X.dtypes != object].tolist()
             return X[num_features]
-        elif self.dtype == "categorical":
+        elif self.feature_type == "categorical":
             cat_features = X.columns[X.dtypes == object].tolist()
             return X[cat_features] 

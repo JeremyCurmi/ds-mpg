@@ -4,6 +4,8 @@ from imputer import Imputer
 from categorical_encoder import CategoryEncoder
 from feature_selector import FeatureTypeSelector, FeatureSelector
 from feature_creator import FeatureCreator
+from pipelines import numeric_preprocessor_pipeline, cleaner_numeric_preprocessor_pipeline
+from cleaner import Cleaner
 
 import pandas as pd
 
@@ -53,6 +55,20 @@ def main():
     feat_creator = FeatureCreator()
     check = feat_creator.fit_transform(tmp)
     print(check)
+    
+    tmp_train = data.X_train
+    
+    cleaner1 = Cleaner()
+    tmp1 = cleaner1.fit_transform(tmp_train)
+    print("cleaned: \n",tmp1)
+    print(tmp1.isnull().sum())
+    
+    num_pipe_df = numeric_preprocessor_pipeline.fit_transform(tmp_train)
+    print(num_pipe_df)
+    
+    clean_num_pipe_df = cleaner_numeric_preprocessor_pipeline.fit_transform(tmp_train)
+    print("\n clean_numerical pipeline df: \n",clean_num_pipe_df)
+    print(clean_num_pipe_df.isnull().sum())
 
 if __name__ == "__main__":
     main()
