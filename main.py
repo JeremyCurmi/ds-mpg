@@ -3,6 +3,7 @@ from scaler import Scaler
 from imputer import Imputer
 from categorical_encoder import CategoryEncoder
 from feature_selector import FeatureTypeSelector, FeatureSelector
+from feature_creator import FeatureCreator
 
 import pandas as pd
 
@@ -48,5 +49,10 @@ def main():
     feat_sel = FeatureSelector(feature_list=["cylinders","car name"])
     check = feat_sel.fit_transform(tmp)
     print(check.head())
+
+    feat_creator = FeatureCreator()
+    check = feat_creator.fit_transform(tmp)
+    print(check)
+
 if __name__ == "__main__":
     main()

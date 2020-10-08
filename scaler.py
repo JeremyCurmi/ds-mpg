@@ -1,4 +1,8 @@
 import pandas as pd
+import logging
+import time
+logging.basicConfig(format="%(asctime)s - %(message)s",level=logging.INFO)
+
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.preprocessing import StandardScaler, RobustScaler, MinMaxScaler
 
@@ -12,6 +16,10 @@ class Scaler(TransformerMixin):
 
     """
     def __init__(self, method = "standard"):
+        self.start_time = time.time()
+        self.name = "Scaler"
+        logging.info(f"{self.name} Processing ...")
+
         self.scaler = None
         self.scale_ = None
         self.method = method
@@ -48,6 +56,8 @@ class Scaler(TransformerMixin):
     def transform(self, X):
         X_scaled = self.scaler.transform(X)
         X_scaled_df = pd.DataFrame(X_scaled, index = X.index, columns = X.columns)
+        
+        logging.info(f"{self.name} Finished Processing, total time taken: --- {round((time.time() - self.start_time),6)} seconds ---")
         return X_scaled_df
 
     def return_feature_names(self):
