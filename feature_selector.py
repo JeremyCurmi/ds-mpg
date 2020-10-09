@@ -34,7 +34,9 @@ class FeatureSelector(BaseEstimator,TransformerMixin):
     """
         Selects Features based on input list and type of feature, 
         its important that all features in the given feature list 
-        must be of the same type.
+        must be of the same type. Types supported:
+        1. numeric
+        2. categorical
     """
     def __init__(self, feature_type = "numeric", feature_list = []):
         self.start_time = time.time()
@@ -53,7 +55,7 @@ class FeatureSelector(BaseEstimator,TransformerMixin):
         else:
             X_subset = self.return_df_subset(X[self.feature_list])
             if len(X_subset.columns.tolist()) != len(self.feature_list):
-                warnings.warn("Certain Features from the provided feature list were not found bu the Feature Selector, make sure that all features in the feature list are of the same type",UserWarning)
+                warnings.warn("Certain Features from the provided feature list were not found by the Feature Selector, make sure that all features in the feature list are of the same type",UserWarning)
             
         logging.info(f"{self.name} Finished Processing, total time taken: --- {round((time.time() - self.start_time),6)} seconds ---")
         return X_subset              

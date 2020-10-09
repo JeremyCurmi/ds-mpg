@@ -4,8 +4,10 @@ from imputer import Imputer
 from categorical_encoder import CategoryEncoder
 from feature_selector import FeatureTypeSelector, FeatureSelector
 from feature_creator import FeatureCreator
-from pipelines import numeric_preprocessor_pipeline, cleaner_numeric_preprocessor_pipeline
+from pipelines import numeric_preprocessor_pipeline, cleaner_numeric_preprocessor_pipeline, scaler_preprocessor_pipeline, full_pipeline, feat_type_transformer_pipeline
 from cleaner import Cleaner
+from feature_type_transformer import FeatureTypeTransformer
+from categorical_orderer import CategoricalOrderer
 
 import pandas as pd
 
@@ -68,7 +70,51 @@ def main():
     
     clean_num_pipe_df = cleaner_numeric_preprocessor_pipeline.fit_transform(tmp_train)
     print("\n clean_numerical pipeline df: \n",clean_num_pipe_df)
-    print(clean_num_pipe_df.isnull().sum())
-
+    print()
+    print()
+    print()
+    print(clean_num_pipe_df.head())
+    print(clean_num_pipe_df.shape)
+    print()
+    print()
+    print()
+    scaler_pipe_df = scaler_preprocessor_pipeline.fit_transform(tmp_train)
+    print(scaler_pipe_df)
+    print()
+    print()
+    print()
+    full_pipe_df = full_pipeline.fit_transform(tmp_train)
+    print(full_pipe_df)
+    print()
+    print(full_pipeline[0].get_params())
+    print("\n\n\n\n\n")
+    print()
+    print(full_pipeline.get_params())
+    print(clean_num_pipe_df.info())
+    print("\n\n\n\n\n")
+    print()
+    feat_type_transf_df = feat_type_transformer_pipeline.fit_transform(tmp_train)
+    print(feat_type_transf_df.head())
+    print(feat_type_transf_df.info())
+    print()
+    print()
+    print(feat_type_transf_df['cylinders'])
+    print("\n\n\n\n\n")
+    print()
+    print("\n\n\n\n\n")
+    print()
+    print("Testing Categorical feature ordere \n\n\n\n")
+    tmp_train = tmp_train.append(pd.Series(), ignore_index=True)
+    print(tmp_train["model year"].value_counts(dropna=False))
+    
+    feat_orderer = CategoricalOrderer(feature_mapper_dict={"model year":{733:70},"cylinders":{8:111}})
+    feat_orderer_df = feat_orderer.fit_transform(tmp_train)
+    print(feat_orderer_df)
+    
+    
+    
+    
+    
+    
 if __name__ == "__main__":
     main()

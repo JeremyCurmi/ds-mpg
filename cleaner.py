@@ -32,3 +32,15 @@ class Cleaner(BaseEstimator, TransformerMixin):
     def feature_clean_horsepower(self, X):
         X["horsepower"] = pd.to_numeric(X["horsepower"], errors = "coerce")
         return X
+
+    def feature_clean_cylinders(self, X):
+        """
+            change rare feature values
+        """
+        cylinder_dict = {
+            3:6,
+            5:6
+        }
+        X["cylinders"] = X["cylinders"].map(cylinder_dict).fillna(X["cylinders"]) 
+        return X
+        
