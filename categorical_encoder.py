@@ -1,20 +1,17 @@
 import pandas as pd
 import warnings
-import logging
-import time
-logging.basicConfig(format="%(asctime)s - %(message)s",level=logging.INFO)
 
-from sklearn.base import BaseEstimator, TransformerMixin
+from df_transformer import DfTransformer
 
 
-class CategoryEncoder(BaseEstimator, TransformerMixin):
+class CategoricalEncoder(DfTransformer):
     """
         Builds on pandas get_dummies
     """
     def __init__(self, drop_first = False, match_cols = True):
-        self.start_time = time.time()
-        self.name = "CategoryEncoder"
-        logging.info(f"{self.name} Processing ...")
+        self.name = "CategoricalEncoder"
+        super().log_start(self.name)
+
         self.drop_first = drop_first
         self.columns = []
         self.match_cols = match_cols
@@ -33,7 +30,7 @@ class CategoryEncoder(BaseEstimator, TransformerMixin):
         else:
             self.columns = X_dummies.columns
 
-        logging.info(f"{self.name} Finished Processing, total time taken: --- {round((time.time() - self.start_time),6)} seconds ---")
+        super().log_end(self.name)
         return X_dummies
 
     def match_columns(self, X):

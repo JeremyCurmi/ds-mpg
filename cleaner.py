@@ -1,46 +1,27 @@
 import pandas as pd
 import numpy as np
-import warnings
 
-import logging
-import time
-logging.basicConfig(format="%(asctime)s - %(message)s",level=logging.INFO)
+from df_transformer import DfTransformer
 
-
-from sklearn.base import BaseEstimator, TransformerMixin
-
-class Cleaner(BaseEstimator, TransformerMixin):
+class Cleaner(DfTransformer):
     """
         Data cleaning before preprocessing
     """
     
     def __init__(self):
-        self.start_time = time.time()
         self.name = "Cleaner"
-        logging.info(f"{self.name} Processing ...")
-    
+        super().log_start(self.name)    
+
     def fit(self, X, y=None):
         return self
     
     def transform(self, X, y=None):
-        X_clean = X.copy()
-        X_clean = self.feature_clean_horsepower(X_clean)
         
-        logging.info(f"{self.name} Finished Processing, total time taken: --- {round((time.time() - self.start_time),6)} seconds ---")
+        X_clean = self.clean_features(X)
+
+        super().log_end(self.name)        
         return X_clean
 
-    def feature_clean_horsepower(self, X):
+    def clean_features(self, X):
         X["horsepower"] = pd.to_numeric(X["horsepower"], errors = "coerce")
         return X
-
-    def feature_clean_cylinders(self, X):
-        """
-            change rare feature values
-        """
-        cylinder_dict = {
-            3:6,
-            5:6
-        }
-        X["cylinders"] = X["cylinders"].map(cylinder_dict).fillna(X["cylinders"]) 
-        return X
-        

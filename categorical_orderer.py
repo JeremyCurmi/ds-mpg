@@ -1,12 +1,8 @@
 import warnings
-import logging
-import time
-logging.basicConfig(format="%(asctime)s - %(message)s",level=logging.INFO)
 
-from sklearn.base import BaseEstimator, TransformerMixin
+from df_transformer import DfTransformer
 
-
-class CategoricalOrderer(BaseEstimator, TransformerMixin):
+class CategoricalOrderer(DfTransformer):
     """
         This Transformer Requires a feature_mapper_dict which is a dictionary in which the keys 
         are the features and the values are dictionaries with the required mapping of each feature 
@@ -22,22 +18,23 @@ class CategoricalOrderer(BaseEstimator, TransformerMixin):
     """
     
     def __init__(self, feature_mapper_dict, replace_remaining_non_nas_values_by=0):
-        self.start_time = time.time()
         self.name = "CategoricalOrderer"
-        logging.info(f"{self.name} Processing ...")
+        super().log_start(self.name)
         
         self.feature_mapper = feature_mapper_dict
         self.fill_value = replace_remaining_non_nas_values_by
-        self.feature_with_null_values_dict = {}
+        self.features_with_null_values_dict = {}
+        self.features_with_missing_mapping_values_dict = {}
         
     def fit(self, X, y=None):
         return self
     
     def transform(self, X, y=None):
-        self.feature_values_validator(X)
+        self.null_values_validator(X)
+        self.missing_value_mapping_validator(X)
         X_ordered = self.orderer(X)
         
-        logging.info(f"{self.name} Finished Processing, total time taken: --- {round((time.time() - self.start_time),6)} seconds ---")
+        super().log_end(self.name)
         return X_ordered
 
     def orderer(self, X):
@@ -48,14 +45,22 @@ class CategoricalOrderer(BaseEstimator, TransformerMixin):
 
         return X
     
-    def feature_values_validator(self, X):
+    def null_values_validator(self, X):
         
         for feature in self.feature_mapper:
             num_missing_values = X[feature].isnull().sum()
-            self.feature_with_null_values_dict[feature] = num_missing_values
+            self.features_with_null_values_dict[feature] = num_missing_values
                     
+        if len(list(self.features_with_null_values_dict))>0:
+            warnings.warn("The following features has missing values and will not be imputed {}".format(self.features_with_null_values_dict),UserWarning)
 
-        if len(list(self.feature_with_null_values_dict))>0:
-            warnings.warn("The following features had missing values and will not be imputed {}".format(self.feature_with_null_values_dict),UserWarning)
+    def missing_value_mapping_validator(self,X):
+        for feature in self.feature_mapper:
+            n_unique_feature_values = X[feature].nunique()
+            n_unique_value_mappings = len(self.feature_mapper[feature])
+            
+            if n_unique_feature_values != n_unique_value_mappings:
+                self.features_with_missing_mapping_values_dict[feature] = {"total_feature_unique_values":n_unique_feature_values,"provided_mapping_unique_values":n_unique_value_mappings}
 
-        
+        if len(list(self.features_with_missing_mapping_values_dict))>0:
+            warnings.warn("The specified order mapping(s) for the following feature(s) have less (or more) unique values then the feature(s) have {}".format(self.features_with_missing_mapping_values_dict),UserWarning)

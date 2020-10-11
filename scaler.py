@@ -1,13 +1,10 @@
 import pandas as pd
-import logging
-import time
-logging.basicConfig(format="%(asctime)s - %(message)s",level=logging.INFO)
 
-from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.preprocessing import StandardScaler, RobustScaler, MinMaxScaler
 
+from df_transformer import DfTransformer
 
-class Scaler(TransformerMixin):
+class Scaler(DfTransformer):
     """
         Preprocessor for Numerical Features, which scales the values, choices are:
         1.StandardScaler -> Scales the feature to standard normal distribution
@@ -16,9 +13,8 @@ class Scaler(TransformerMixin):
 
     """
     def __init__(self, method = "standard"):
-        self.start_time = time.time()
         self.name = "Scaler"
-        logging.info(f"{self.name} Processing ...")
+        super().log_start(self.name)
 
         self.scaler = None
         self.scale_ = None
@@ -57,7 +53,7 @@ class Scaler(TransformerMixin):
         X_scaled = self.scaler.transform(X)
         X_scaled_df = pd.DataFrame(X_scaled, index = X.index, columns = X.columns)
         
-        logging.info(f"{self.name} Finished Processing, total time taken: --- {round((time.time() - self.start_time),6)} seconds ---")
+        super().log_end(self.name)
         return X_scaled_df
 
     def return_feature_names(self):
