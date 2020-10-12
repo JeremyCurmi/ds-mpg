@@ -19,7 +19,7 @@ class Scaler(DfTransformer):
         self.scaler = None
         self.scale_ = None
         self.method = method
-        self.columns = None
+        self.columns = []
 
         if method == "standard":
             self.mean_ = None
@@ -52,9 +52,10 @@ class Scaler(DfTransformer):
     def transform(self, X):
         X_scaled = self.scaler.transform(X)
         X_scaled_df = pd.DataFrame(X_scaled, index = X.index, columns = X.columns)
+        self.columns = X_scaled_df.columns
         
         super().log_end(self.name)
         return X_scaled_df
 
-    def return_feature_names(self):
-        return list(self.columns)
+    def get_feature_names(self):
+        return self.columns

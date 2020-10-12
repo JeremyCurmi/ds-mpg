@@ -23,6 +23,7 @@ class Imputer(DfTransformer):
         self.fill_value = fill_value
         self.imputer = None
         self.statistics_ = None
+        self.columns = None
 
 
     def fit(self, X, y=None):
@@ -35,6 +36,10 @@ class Imputer(DfTransformer):
         X_imputed = self.imputer.transform(X)
         X_imputed_df = pd.DataFrame(X_imputed, index = X.index, columns = X.columns)
         
+        self.columns = X_imputed_df.columns
         super().log_end(self.name)
         return X_imputed_df
-
+    
+    
+    def get_feature_names(self):
+        return list(self.columns)

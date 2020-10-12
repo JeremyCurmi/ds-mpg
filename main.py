@@ -4,11 +4,15 @@ from imputer import Imputer
 from categorical_encoder import CategoricalEncoder
 from feature_selector import FeatureSelector
 from feature_creator import FeatureCreator
+
+from feature_binner import FeatureKBinner
+
 from cleaner import Cleaner
 from feature_type_transformer import FeatureTypeTransformer
 from categorical_orderer import CategoricalOrderer
 
-from pipelines import full_pipe
+from pipelines import preprocessor_pipe, lasso_pipe, xgboost_pipe, lin_reg_pipe
+from ml_training import grid_search
 import pandas as pd
 
 def main():
@@ -16,110 +20,32 @@ def main():
     data.fetch_data()
     data.split_X_y()
     data.split_X_y_train_test()
-
-    print(data.X_train.head())
-
-    # scaler = Scaler()
-    # tmp = scaler.fit_transform(data.X_train[["cylinders","displacement"]])
-    # print(tmp.head())
-    # scaler = Scaler(method="robust")
-    # tmp = scaler.fit_transform(data.X_train[["cylinders","displacement"]])
-    # print(tmp.head())
-    # scaler = Scaler(method="minmax")
-    # tmp = scaler.fit_transform(data.X_train[["cylinders","displacement"]])
-    # print(scaler.min_)
-
-    # print()
-    # print()
-    # tmp = data.X_train
-    # tmp["horsepower"] = pd.to_numeric(tmp["horsepower"], errors = "coerce")
-    # imputer = Imputer(method="constant")
-    # check = imputer.fit_transform(tmp[["horsepower"]])
-    # print(check.isnull().sum())
-
-    # dummies = CategoricalEncoder()
-    # check = dummies.fit_transform(tmp)
-    # print(check.head())
-    # check1 = dummies.transform(data.X_test)
-    # print()
-    # print()
-    # print(check1)
-    # print()
-    # print()
-    # feat_sel = FeatureSelector()
-    # check = feat_sel.fit_transform(tmp)
-    # print(check.head())
-
-    # feat_sel = FeatureSelector(feature_list=["cylinders","car name"])
-    # check = feat_sel.fit_transform(tmp)
-    # print(check.head())
-
-    # feat_creator = FeatureCreator()
-    # check = feat_creator.fit_transform(tmp)
-    # print(check)
     
-    # tmp_train = data.X_train
+    tmp_train_X = data.X_train
+    tmp_train_y = data.y_train
     
-    # cleaner1 = Cleaner()
-    # tmp1 = cleaner1.fit_transform(tmp_train)
-    # print("cleaned: \n",tmp1)
-    # print(tmp1.isnull().sum())
-    
-    # num_pipe_df = numeric_preprocessor_pipeline.fit_transform(tmp_train)
-    # print(num_pipe_df)
-    
-    # clean_num_pipe_df = cleaner_numeric_preprocessor_pipeline.fit_transform(tmp_train)
-    # print("\n clean_numerical pipeline df: \n",clean_num_pipe_df)
-    # print()
-    # print()
-    # print()
-    # print(clean_num_pipe_df.head())
-    # print(clean_num_pipe_df.shape)
-    # print()
-    # print()
-    # print()
-    # scaler_pipe_df = scaler_preprocessor_pipeline.fit_transform(tmp_train)
-    # print(scaler_pipe_df)
-    # print()
-    # print()
-    # print()
-    # full_pipe_df = full_pipeline.fit_transform(tmp_train)
+    # full_pipe_df = preprocessor_pipe.fit_transform(tmp_train_X)
     # print(full_pipe_df)
-    # print()
-    # print(full_pipeline[0].get_params())
-    # print("\n\n\n\n\n")
-    # print()
-    # print(full_pipeline.get_params())
-    # print(clean_num_pipe_df.info())
-    # print("\n\n\n\n\n")
-    # print()
-    # feat_type_transf_df = feat_type_transformer_pipeline.fit_transform(tmp_train)
-    # print(feat_type_transf_df.head())
-    # print(feat_type_transf_df.info())
-    # print()
-    # print()
-    # print(feat_type_transf_df['cylinders'])
-    # print("\n\n\n\n\n")
-    # print()
-    # print("\n\n\n\n\n")
-    # print()
-    # print("Testing Categorical feature ordere \n\n\n\n")
-    # tmp_train = tmp_train.append(pd.Series(), ignore_index=True)
-    # print(tmp_train["model year"].nunique(dropna=False))
-    
-    # feat_orderer = CategoricalOrderer(feature_mapper_dict={"model year":{73:70,81:80},"cylinders":{8:111}})
-    # feat_orderer_df = feat_orderer.fit_transform(tmp_train)
-    # print(feat_orderer_df)
-    
-    
-    tmp_train = data.X_train
-    full_pipe_df = full_pipe.fit_transform(tmp_train)
-    print(full_pipe_df)
-    # print(full_pipe_df.info()) 
-    # print(full_pipe_df.isnull().sum())
-    # print(full_pipe_df.brand.value_counts())
-    # print(full_pipe_df[full_pipe_df["model"].isnull()])
-    
+        
+    # res, bp, _ = grid_search(tmp_train_X, tmp_train_y, lasso_pipe, 
+    #         param_grid={'lasso__alpha': [1, 0.1, 0.01,0.001]},
+    #         cv=5, scoring='neg_mean_squared_error')
+    # print(res)
+
+    res, bp, _ = grid_search(tmp_train_X, tmp_train_y, xgboost_pipe, 
+            param_grid={"preprocessor__creator__annum":[True,False],
+                        "preprocessor__creator__disp_weight_ratio":[True,False],
+                        "preprocessor__creator__power":[True,False],
+                        "preprocessor__creator__brand":[True,False],
+                        "xgboost__max_depth":[4,6,8,10,12,20],
+                        "xgboost__gamma":[0.01,0.1,1],
+                        "xgboost__n_estimators":[100,250,500,750,1000]},
+            cv=5, scoring='neg_mean_squared_error')
+    print(res)
+    # res, bp, _ = grid_search(tmp_train_X, tmp_train_y, lasso_pipe, 
+    #         param_grid={"preprocessor__creator__brand":[False]},
+    #         cv=5, scoring='neg_mean_squared_error')
+    # print(res)
     
 if __name__ == "__main__":
     main()

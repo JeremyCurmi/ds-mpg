@@ -24,4 +24,5 @@ class Cleaner(DfTransformer):
 
     def clean_features(self, X):
         X["horsepower"] = pd.to_numeric(X["horsepower"], errors = "coerce")
+        X["weight"] = X["weight"].astype("float32")
         return X

@@ -49,9 +49,9 @@ class CategoricalEncoder(DfTransformer):
         if len(cols_missing_from_test) > 0:
             for feature in cols_missing_from_test:
                 X_matching_features[feature] = 0 
-                missing_feature = True
+                missing_features = True
 
-        if missing_feature:
+        if missing_features:
             warnings.warn("Certain Features in the Test df do not match the ones in the Training df. This issue was resolved automatically.",UserWarning)
         
         return X_matching_features

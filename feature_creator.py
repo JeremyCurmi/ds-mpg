@@ -5,7 +5,7 @@ class FeatureCreator(DfTransformer):
     """
         Create Features here
     """
-    def __init__(self, power = True, disp_weight_ratio = True, model = True, brand = True
+    def __init__(self, power = True, disp_weight_ratio = True, brand = True
                 ,annum = True):
 
         self.name = "FeatureCreator"
@@ -14,7 +14,6 @@ class FeatureCreator(DfTransformer):
         self.columns = []
         self.power = power
         self.disp_weight_ratio = disp_weight_ratio
-        self.model = model
         self.brand = brand
         self.annum = annum
 
@@ -37,8 +36,6 @@ class FeatureCreator(DfTransformer):
             X["disp_to_weight_rat"] = X["displacement"]/X["weight"]
         if self.brand:
             X["brand"] = X["car name"].str.split().str[0]
-        if self.model:
-            X["model"] = X["car name"].str.split().str[1]
         if self.annum:
             X["annum"] = "70's"
             X.loc[X["model year"]>= 80, "annum"] = "80's"
