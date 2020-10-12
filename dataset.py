@@ -22,3 +22,10 @@ class DataSet:
 
     def split_X_y_train_test(self):
         self.X_train, self.X_test, self.y_train, self.y_test = model_selection.train_test_split(self.X,self.y, test_size = 0.2, random_state = 42)
+
+def data_fetcher():
+    data = DataSet()
+    data.fetch_data()
+    data.split_X_y()
+    data.split_X_y_train_test()
+    return data.X_train, data.X_test, data.y_train, data.y_test

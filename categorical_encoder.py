@@ -1,14 +1,17 @@
 import pandas as pd
 import warnings
 
-from sklearn.base import BaseEstimator, TransformerMixin
+from df_transformer import DfTransformer
 
 
-class CategoryEncoder(BaseEstimator, TransformerMixin):
+class CategoricalEncoder(DfTransformer):
     """
         Builds on pandas get_dummies
     """
     def __init__(self, drop_first = False, match_cols = True):
+        self.name = "CategoricalEncoder"
+        super().log_start(self.name)
+
         self.drop_first = drop_first
         self.columns = []
         self.match_cols = match_cols
@@ -26,6 +29,8 @@ class CategoryEncoder(BaseEstimator, TransformerMixin):
             self.columns = X_dummies.columns
         else:
             self.columns = X_dummies.columns
+
+        super().log_end(self.name)
         return X_dummies
 
     def match_columns(self, X):
@@ -44,9 +49,9 @@ class CategoryEncoder(BaseEstimator, TransformerMixin):
         if len(cols_missing_from_test) > 0:
             for feature in cols_missing_from_test:
                 X_matching_features[feature] = 0 
-                missing_feature = True
+                missing_features = True
 
-        if missing_feature:
+        if missing_features:
             warnings.warn("Certain Features in the Test df do not match the ones in the Training df. This issue was resolved automatically.",UserWarning)
         
         return X_matching_features

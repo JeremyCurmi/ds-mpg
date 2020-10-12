@@ -130,3 +130,6 @@ dmypy.json
 
 #excel
 *.csv
+
+#pkl
+.pkl

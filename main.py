@@ -1,52 +1,43 @@
-from dataset import DataSet
-from scaler import Scaler
-from imputer import Imputer
-from categorical_encoder import CategoryEncoder
-from feature_selector import FeatureTypeSelector, FeatureSelector
-
 import pandas as pd
+from sklearn.metrics import mean_squared_error
+
+from dataset import data_fetcher
+from pipelines import lasso_pipe, xgboost_pipe
+from ml_training import grid_search, save_ml_model, load_ml_model
+
+pd.set_option('display.max_columns', 500)
+pd.set_option('display.width', 1000)
+
+RUN_MODEL = False
 
 def main():
-    data = DataSet()
-    data.fetch_data()
-    data.split_X_y()
-    data.split_X_y_train_test()
+    X_train, X_test, y_train, y_test = data_fetcher()
+    
+    if RUN_MODEL:
+        # res, bp, model = grid_search(X_train, y_train, lasso_pipe, 
+        #         param_grid={'lasso__alpha': [1, 0.1, 0.01,0.001]},
+        #         cv=5, scoring='neg_mean_squared_error')
+        # print(res)
 
-    print(data.X_train.head())
 
-    scaler = Scaler()
-    tmp = scaler.fit_transform(data.X_train[["cylinders","displacement"]])
-    print(tmp.head())
-    scaler = Scaler(method="robust")
-    tmp = scaler.fit_transform(data.X_train[["cylinders","displacement"]])
-    print(tmp.head())
-    scaler = Scaler(method="minmax")
-    tmp = scaler.fit_transform(data.X_train[["cylinders","displacement"]])
-    print(scaler.min_)
+        res, bp, model = grid_search(X_train, y_train, xgboost_pipe, 
+                param_grid={"preprocessor__creator__annum":[True],
+                            "preprocessor__creator__disp_weight_ratio":[False],
+                            "preprocessor__creator__power":[False],
+                            "preprocessor__creator__brand":[False],
+                            "xgboost__max_depth":[4,6,8],
+                            "xgboost__gamma":[0.1,1],
+                            "xgboost__n_estimators":[100]},
+                cv=5, scoring='neg_mean_squared_error')
+        print(res)
 
-    print()
-    print()
-    tmp = data.X_train
-    tmp["horsepower"] = pd.to_numeric(tmp["horsepower"], errors = "coerce")
-    imputer = Imputer()
-    check = imputer.fit_transform(tmp[["horsepower"]])
-    print(check)
 
-    dummies = CategoryEncoder()
-    check = dummies.fit_transform(tmp)
-    print(check.head())
-    check1 = dummies.transform(data.X_test)
-    print()
-    print()
-    print(check1)
-    print()
-    print()
-    feat_sel = FeatureSelector()
-    check = feat_sel.fit_transform(tmp)
-    print(check.head())
+        save_ml_model(model, "algorithm")
 
-    feat_sel = FeatureSelector(feature_list=["cylinders","car name"])
-    check = feat_sel.fit_transform(tmp)
-    print(check.head())
+    alg = load_ml_model("algorithm")
+    y_pred = alg.predict(X_test)
+
+    print(mean_squared_error(y_test,y_pred))
+    
 if __name__ == "__main__":
     main()

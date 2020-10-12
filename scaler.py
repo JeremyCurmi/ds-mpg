@@ -1,9 +1,10 @@
 import pandas as pd
-from sklearn.base import BaseEstimator, TransformerMixin
+
 from sklearn.preprocessing import StandardScaler, RobustScaler, MinMaxScaler
 
+from df_transformer import DfTransformer
 
-class Scaler(TransformerMixin):
+class Scaler(DfTransformer):
     """
         Preprocessor for Numerical Features, which scales the values, choices are:
         1.StandardScaler -> Scales the feature to standard normal distribution
@@ -12,10 +13,13 @@ class Scaler(TransformerMixin):
 
     """
     def __init__(self, method = "standard"):
+        self.name = "Scaler"
+        super().log_start(self.name)
+
         self.scaler = None
         self.scale_ = None
         self.method = method
-        self.columns = None
+        self.columns = []
 
         if method == "standard":
             self.mean_ = None
@@ -38,17 +42,20 @@ class Scaler(TransformerMixin):
             self.scaler = MinMaxScaler()
             self.scaler.fit(X)
             self.min_ = pd.Series(self.scaler.min_, index = X.columns)
-            self.max_ = pd.Series(self.scaler.min_, index = X.columns)
+            self.max_ = pd.Series(self.scaler.min_, index = X.columns)            
         else:
             "add more different scaler methods"
-            pass
+            print("add more different scaler methods")
         self.scale_ = pd.Series(self.scaler.scale_, index=X.columns)
         return self
 
     def transform(self, X):
         X_scaled = self.scaler.transform(X)
         X_scaled_df = pd.DataFrame(X_scaled, index = X.index, columns = X.columns)
+        self.columns = X_scaled_df.columns
+        
+        super().log_end(self.name)
         return X_scaled_df
 
-    def return_feature_names(self):
-        return list(self.columns)
+    def get_feature_names(self):
+        return self.columns
