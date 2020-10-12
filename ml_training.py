@@ -1,4 +1,6 @@
 import pandas as pd
+import joblib
+
 from sklearn.model_selection import GridSearchCV
 
 def grid_search(X, target, estimator, param_grid, scoring, cv):
@@ -16,3 +18,26 @@ def grid_search(X, target, estimator, param_grid, scoring, cv):
 
     result = result[params + ['mean_test_score', 'std_test_score'] + times]
     return result, grid.best_params_, grid
+
+
+
+def save_ml_model(model, filename = None, path = None):
+
+    model_filename = '' + filename + '.pkl'
+
+    if path != None:
+        model_filename = path + model_filename
+
+    joblib.dump(model, model_filename)
+
+
+def load_ml_model(filename, path = None):
+
+    model_filename = ''+filename+'.pkl'
+
+    if path != None:
+        model_filename = path + model_filename
+
+    return joblib.load(model_filename)
+
+
